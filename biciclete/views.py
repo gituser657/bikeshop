@@ -2,17 +2,8 @@ from django.shortcuts import render
 
 # Create your views here.
 from django.http import HttpResponse
-def index(request):
 
-    # variabila pentru text lung 
-    # title afiseaza numele in tab-ul din browser
-    descriere=""" 
-    <title>BikeMania.ro</title> 
-    <h1>Magazin biciclete</h1>                 
-    <p> Magazin online pentru biciclete de oras si de munte, plus accesorii si piese de schimb.</p>
-    <p> Clientii pot filtra dupa categorie &amp brand. </p> 
-    """
-    return HttpResponse(descriere)
+
 
 # lab 1, cerinta 3, import zile si luni in limba romana, implementare cerinta 3
 
@@ -24,8 +15,44 @@ LUNI = ["", "Ianuarie", "Februarie", "Martie", "Aprilie", "Mai", "Iunie",
 def formateaza_data(d):
     return f"{ZILE[d.weekday()]}, {d.day} {LUNI[d.month]} {d.year}"
 
+
+
+
+# laboratorul 1, cerinta 4 metoda Accesare
+
+def get_ip(request):                       # functie din cerinta lab 
+    str_lista_ip = request.META.get('HTTP_X_FORWARDED_FOR')
+    if str_lista_ip:
+        return str_lista_ip.split(',')[-1].strip()
+    return request.META.get('REMOTE_ADDR')
+
+class Accesare: 
+    count = 0       # contor pentru fiecare accesare
+    def __init__(self, ip_client, id, url, parametri=None):
+        Accesare.count +=1
+        self.id = Accesare.count
+        self.ip_client = ip_client
+        self.url = url
+        self.parametri = parametri if parametri is not None else {}
+        self.data = datetime()  # moment creare
+accesari = []
+
+
+def index(request):
+    accesari.append(Accesare(get_ip(request), request.get_full_path(), request.GET.dict()))  # lab 1, ex 4 apelare functie accesari
+    # variabila pentru text lung 
+    # title afiseaza numele in tab-ul din browser
+    descriere=""" 
+    <title>BikeMania.ro</title> 
+    <h1>Magazin biciclete</h1>                 
+    <p> Magazin online pentru biciclete de oras si de munte, plus accesorii si piese de schimb.</p>
+    <p> Clientii pot filtra dupa categorie &amp brand. </p> 
+    """
+    return HttpResponse(descriere)
+
 # lab 1, cerinta 2, pagina info cu H1
 def info(request): 
+    accesari.append(Accesare(get_ip(request), request.get_full_path(), request.GET.dict()))     # lab 1, ex 4 apelare functie accesari
     acum = datetime.now()
     info_descriere = f"""
     <!DOCTYPE html>
