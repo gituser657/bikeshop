@@ -87,7 +87,7 @@ class Accesare:
             text = self.data.strftime("%H:%M:%S")
         else:
             text = formateaza_data(self.data, format) + ", ora " + self.data.strftime("%H:%M:%S")
-        return f"<section><h2>Data si ora</h2><p>{text}</p></section>"
+        return f"<section><h2>Data și ora</h2><p>{text}</p></section>"
 
     
     # lab 1, ex 9 - metoda _str_ 
@@ -153,7 +153,7 @@ def info(request):
     <html lang="ro">
     <head>
         <meta charset="utf-8">
-        <title>Informatii despre server</title>
+        <title>Informații despre server</title>
     </head>
     <body>
         <h1>Informații despre server</h1>    
