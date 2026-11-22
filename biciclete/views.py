@@ -2,9 +2,6 @@ from django.shortcuts import render
 
 # Create your views here.
 from django.http import HttpResponse
-
-
-
 # lab 1, cerinta 3, import zile si luni in limba romana, implementare cerinta 3
 
 from datetime import datetime
@@ -14,9 +11,6 @@ LUNI = ["", "Ianuarie", "Februarie", "Martie", "Aprilie", "Mai", "Iunie",
         "Iulie", "August", "Septembrie", "Octombrie", "Noiembrie", "Decembrie"]
 def formateaza_data(d):
     return f"{ZILE[d.weekday()]}, {d.day} {LUNI[d.month]} {d.year}"
-
-
-
 
 # laboratorul 1, cerinta 4 metoda Accesare
 
@@ -34,7 +28,13 @@ class Accesare:
         self.ip_client = ip_client
         self.url = url
         self.parametri = parametri if parametri is not None else {}
-        self.data = datetime()  # moment creare
+        self.data = datetime.now()  # moment creare
+    
+    #lab 1, ex 5 - metoda lista_parametri()
+    
+    def lista_parametri(self):
+        return [(nume, valoare if valoare != "" else None)
+                for nume, valoare in self.parametri.items()]
 accesari = []
 
 
@@ -46,13 +46,19 @@ def index(request):
     <title>BikeMania.ro</title> 
     <h1>Magazin biciclete</h1>                 
     <p> Magazin online pentru biciclete de oras si de munte, plus accesorii si piese de schimb.</p>
-    <p> Clientii pot filtra dupa categorie &amp brand. </p> 
+    <p> Clientii pot filtra dupa categorie &amp; brand. </p> 
     """
     return HttpResponse(descriere)
 
 # lab 1, cerinta 2, pagina info cu H1
 def info(request): 
-    accesari.append(Accesare(get_ip(request), request.get_full_path(), request.GET.dict()))     # lab 1, ex 4 apelare functie accesari
+    # accesari.append(Accesare(get_ip(request), request.get_full_path(), request.GET.dict())) # lab 1, ex 4 apelare functie accesari
+    # salvare in variabila accesare. ex5 
+    
+    accesare = Accesare(get_ip(request), request.get_full_path(), request.GET.dict())
+    accesari.append(accesare)
+    print(accesare.lista_parametri)
+    
     acum = datetime.now()
     info_descriere = f"""
     <!DOCTYPE html>
