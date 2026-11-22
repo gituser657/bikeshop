@@ -9,11 +9,32 @@ from urllib.parse import urlparse
 
 from datetime import datetime
 
+#lab 1, exercitiu 7 calculeaza_data()
+#setare format implicit
+# %A -- ziua 
+# %B -- luna 
+# %-d --elimina 0-urile din data ex 02 nov - devine 2 nov. 
+# %Y -- an
+
+FORMAT_IMPLICIT = "%A, %-d %B %Y" 
+
 ZILE = ["Luni", "Marți", "Miercuri", "Joi", "Vineri", "Sâmbătă", "Duminică"]
 LUNI = ["", "Ianuarie", "Februarie", "Martie", "Aprilie", "Mai", "Iunie",
         "Iulie", "August", "Septembrie", "Octombrie", "Noiembrie", "Decembrie"]
-def formateaza_data(d):
-    return f"{ZILE[d.weekday()]}, {d.day} {LUNI[d.month]} {d.year}"
+def formateaza_data(d, format=FORMAT_IMPLICIT):
+
+# comnetare implementare lab 1, cerinta 3 
+#    return f"{ZILE[d.weekday()]}, {d.day} {LUNI[d.month]} {d.year}"
+
+# implementare format nou, lab 1, cerinta 7
+
+    format = format.replace("%A", ZILE[d.weekday()])
+    format = format.replace("%B", LUNI[d.month])
+    format = format.replace("%-d", str(d.day))
+    return d.strftime(format)
+
+# final implementare format nou, lab 1, cerinta 7
+
 
 # laboratorul 1, cerinta 4 metoda Accesare
 
@@ -48,6 +69,12 @@ class Accesare:
         cale =urlparse(self.url).path
         return cale.removeprefix(Accesare.PREFIX) or "/"
     
+    # lab 1, ex 7 - definire metoda calculeaza_data, cu setare format implicit definit mai sus
+    def calculeaza_data(self, format=FORMAT_IMPLICIT):
+        return formateaza_data(self.data, format)
+        
+
+    
 accesari = []
 
 
@@ -80,7 +107,8 @@ def info(request):
     print(accesare.lista_parametri())
     print(accesare.string_url(), accesare.pagina())
     
-    acum = datetime.now()
+    # eliminare functie datetime.now() & folosire metoda accesare.calculeaza_data()
+    # acum = datetime.now()
     info_descriere = f"""
     <!DOCTYPE html>
     <html lang="ro">
@@ -92,7 +120,7 @@ def info(request):
         <h1>Informații despre server</h1>    
     <section>
         <h2>Data și ora</h2>
-        <p>{formateaza_data(acum)}, ora {acum.strftime('%H:%M:%S')}</p>
+        <p>{accesare.calculeaza_data()}, ora {accesare.calculeaza_data('%H:%M:%S')}</p>
     </section>
     </body>
     </html>"""
