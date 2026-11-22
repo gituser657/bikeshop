@@ -4,6 +4,9 @@ from django.shortcuts import render
 from django.http import HttpResponse
 # lab 1, cerinta 3, import zile si luni in limba romana, implementare cerinta 3
 
+#lab 1, ex 6 - import urls
+from urllib.parse import urlparse
+
 from datetime import datetime
 
 ZILE = ["Luni", "Marți", "Miercuri", "Joi", "Vineri", "Sâmbătă", "Duminică"]
@@ -21,8 +24,9 @@ def get_ip(request):                       # functie din cerinta lab
     return request.META.get('REMOTE_ADDR')
 
 class Accesare: 
-    count = 0       # contor pentru fiecare accesare
-    def __init__(self, ip_client, id, url, parametri=None):
+    count = 0    # contor pentru fiecare accesare
+    PREFIX = "/biciclete" # lab 1, ex 6 
+    def __init__(self, ip_client, url, parametri=None):
         Accesare.count +=1
         self.id = Accesare.count
         self.ip_client = ip_client
@@ -35,11 +39,25 @@ class Accesare:
     def lista_parametri(self):
         return [(nume, valoare if valoare != "" else None)
                 for nume, valoare in self.parametri.items()]
+    
+    #lab 1, ex 6 -- metodele string_url() & pagina()
+    def string_url(self):
+        return self.url
+    
+    def pagina(self):
+        cale =urlparse(self.url).path
+        return cale.removeprefix(Accesare.PREFIX) or "/"
+    
 accesari = []
 
 
 def index(request):
-    accesari.append(Accesare(get_ip(request), request.get_full_path(), request.GET.dict()))  # lab 1, ex 4 apelare functie accesari
+    # accesari.append(Accesare(get_ip(request), request.get_full_path(), request.GET.dict())) # lab 1, ex 4 apelare functie accesari
+    
+    #modificare in request.build_absolute_uri() - lab 1, ex 6
+    
+    accesari.append(Accesare(get_ip(request), request.build_absolute_uri(), request.GET.dict()))
+        
     # variabila pentru text lung 
     # title afiseaza numele in tab-ul din browser
     descriere=""" 
@@ -55,9 +73,12 @@ def info(request):
     # accesari.append(Accesare(get_ip(request), request.get_full_path(), request.GET.dict())) # lab 1, ex 4 apelare functie accesari
     # salvare in variabila accesare. ex5 
     
-    accesare = Accesare(get_ip(request), request.get_full_path(), request.GET.dict())
+    # accesare = Accesare(get_ip(request), request.get_full_path(), request.GET.dict())
+    
+    accesare =Accesare(get_ip(request), request.build_absolute_uri(), request.GET.dict())
     accesari.append(accesare)
-    print(accesare.lista_parametri)
+    print(accesare.lista_parametri())
+    print(accesare.string_url(), accesare.pagina())
     
     acum = datetime.now()
     info_descriere = f"""
