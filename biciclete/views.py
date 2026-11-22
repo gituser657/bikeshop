@@ -75,9 +75,19 @@ class Accesare:
         return cale.removeprefix(Accesare.PREFIX) or "/"
     
     # lab 1, ex 7 - definire metoda calculeaza_data, cu setare format implicit definit mai sus
-    def calculeaza_data(self, format=FORMAT_IMPLICIT):
-        return formateaza_data(self.data, format)
+    # def calculeaza_data(self, format=FORMAT_IMPLICIT):
+    #     return formateaza_data(self.data, format)
         
+    # implementare lab 1, ex 10 - in formateaza_data se adauga un al 3-lea parametru numit, tip
+    
+    def calculeaza_data(self, format=FORMAT_IMPLICIT, tip=""):
+        if tip == "zi":
+            text = formateaza_data(self.data, FORMAT_IMPLICIT)
+        elif tip == "timp":
+            text = self.data.strftime("%H:%M:%S")
+        else:
+            text = formateaza_data(self.data, format) + ", ora " + self.data.strftime("%H:%M:%S")
+        return f"<section><h2>Data si ora</h2><p>{text}</p></section>"
 
     
     # lab 1, ex 9 - metoda _str_ 
@@ -119,8 +129,11 @@ def info(request):
     
     # accesare = Accesare(get_ip(request), request.get_full_path(), request.GET.dict())
     
-    accesare =Accesare(request.ip_client, request.build_absolute_uri(), request.GET.dict())
+    accesare = Accesare(request.ip_client, request.build_absolute_uri(), request.GET.dict())
     accesari.append(accesare)
+    tip = accesare.parametri.get("data","")
+    sectiune = accesare.calculeaza_data(tip=tip)
+    
     # print(accesare.lista_parametri())
     # print(accesare.string_url(), accesare.pagina())
 
@@ -132,7 +145,10 @@ def info(request):
     print (accesare)
     # eliminare functie datetime.now() & folosire metoda accesare.calculeaza_data()
     # acum = datetime.now()
-    info_descriere = f"""
+    
+    # lab 1, ex 10 - modificare paramtru sectiune 
+    
+    info_descriere = ("""
     <!DOCTYPE html>
     <html lang="ro">
     <head>
@@ -140,11 +156,12 @@ def info(request):
         <title>Informatii despre server</title>
     </head>
     <body>
-        <h1>Informatii despre server</h1>    
-    <section>
-        <h2>Data și ora</h2>
-        <p>{accesare.calculeaza_data()}, ora {accesare.calculeaza_data('%H:%M:%S')}</p>
-    </section>
+        <h1>Informații despre server</h1>    
+    """ 
+    + 
+    sectiune 
+    +
+    """
     </body>
-    </html>"""
+    </html>""")
     return HttpResponse(info_descriere)
