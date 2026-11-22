@@ -16,6 +16,12 @@ from datetime import datetime
 # %-d --elimina 0-urile din data ex 02 nov - devine 2 nov. 
 # %Y -- an
 
+
+# lab 2, ex 4 - task 1 
+# definire proprietati pentru tabel cu vizibilitate globala
+
+
+PROPRIETATI = ["id", "ip_client", "url", "parametri", "data"]
 FORMAT_IMPLICIT = "%A, %-d %B %Y" 
 
 ZILE = ["Luni", "Marți", "Miercuri", "Joi", "Vineri", "Sâmbătă", "Duminică"]
@@ -242,7 +248,7 @@ def log(request):
     
     # final implementare lab 2, ex 2 - task 1 - parametrizare /log nu id-uri
     
-    # # lista elemente 
+    # lista elemente 
     elemente = "".join(
         f"<li>{a.id} | {a.pagina()} | {a.string_url()} | {formateaza_data(a.data)}, ora {a.data.strftime('%H:%M:%S')}</li>"
         for a in selectate
@@ -254,15 +260,47 @@ def log(request):
     elemente_parametri = ""
     for nume in nume_parametri:
         elemente_parametri = elemente_parametri + f"<li>{nume}</li>"
-        sectiune_parametri = (f"<section><h2>Parametri</h2><p>Număr parametri: {len(nume_parametri)}</p>"
-                    "<ul>" + elemente_parametri + "</ul></section>")
+    sectiune_parametri = (f"<section><h2>Parametri</h2><p>Număr parametri: {len(nume_parametri)}</p>"
+                "<ul>" + elemente_parametri + "</ul></section>")
+        
+
+    # parametrul tabel
+    continut = "<ul>" + elemente + "</ul>"            # implicit: lista
+    tabel = request.GET.get("tabel")
+    if tabel:
+        if tabel == "tot":
+            coloane = PROPRIETATI
+        else:
+            coloane = []
+            for nume in tabel.split(","):
+                nume = nume.strip()
+                if nume in PROPRIETATI:
+                    coloane.append(nume)
+                else:
+                    mesaj = mesaj + f"<p>Proprietatea {nume} nu exista.</p>"
+
+        antet = ""
+        for c in coloane:
+            antet = antet + f"<th>{c}</th>"
+
+        randuri = ""
+        for a in selectate:
+            celule = ""
+            for c in coloane:
+                valoare = getattr(a, c)
+                if c == "data":
+                    valoare = formateaza_data(valoare) + ", ora " + valoare.strftime("%H:%M:%S")
+                celule = celule + f"<td>{valoare}</td>"
+            randuri = randuri + f"<tr>{celule}</tr>"
+
+        continut = f'<table border="1"><tr>{antet}</tr>{randuri}</table>'
     
     pagina = ("""<!DOCTYPE html>
         <html lang="ro">
         <head><meta charset="utf-8"><title>Log accesări</title></head>
         <body>
             <h1>Log accesări</h1>
-            <ul>""" + elemente + "</ul>" + mesaj + sectiune_accesari + sectiune_parametri + """
+            """ + continut + mesaj + sectiune_accesari + sectiune_parametri + """
         </body>
         </html>""")
     return HttpResponse(pagina)
