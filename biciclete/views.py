@@ -80,6 +80,16 @@ class Accesare:
         
 
     
+    # lab 1, ex 9 - metoda _str_ 
+    
+    def __str__(self):
+        return (f"id: {self.id}\n"
+                f"ip_client: {self.ip_client}\n"
+                f"string_url: {self.string_url()}\n"
+                f"pagina: {self.pagina()}\n"
+                f"calculeaza_data: {self.calculeaza_data()}\n"
+                f"lista_parametri: {self.lista_parametri()}")
+    
 accesari = []
 
 
@@ -88,8 +98,9 @@ def index(request):
     
     #modificare in request.build_absolute_uri() - lab 1, ex 6
     
-    accesari.append(Accesare(request.ip_client, request.build_absolute_uri(), request.GET.dict()))
-        
+    # accesari.append(Accesare(request.ip_client, request.build_absolute_uri(), request.GET.dict()))
+    accesare =Accesare(request.ip_client, request.build_absolute_uri(), request.GET.dict())
+    accesari.append(accesare)    
     # variabila pentru text lung 
     # title afiseaza numele in tab-ul din browser
     descriere=""" 
@@ -98,6 +109,7 @@ def index(request):
     <p> Magazin online pentru biciclete de oras si de munte, plus accesorii si piese de schimb.</p>
     <p> Clientii pot filtra dupa categorie &amp; brand. </p> 
     """
+    print(accesare)
     return HttpResponse(descriere)
 
 # lab 1, cerinta 2, pagina info cu H1
@@ -109,13 +121,15 @@ def info(request):
     
     accesare =Accesare(request.ip_client, request.build_absolute_uri(), request.GET.dict())
     accesari.append(accesare)
-    print(accesare.lista_parametri())
-    print(accesare.string_url(), accesare.pagina())
+    # print(accesare.lista_parametri())
+    # print(accesare.string_url(), accesare.pagina())
 
     
     # verificare ca middleware-ul creat functioneaza - ex 8
-    print(accesare.ip_client)
+    # print(accesare.ip_client)
     
+    # test metoda _str_ -- ex 9, lab 1
+    print (accesare)
     # eliminare functie datetime.now() & folosire metoda accesare.calculeaza_data()
     # acum = datetime.now()
     info_descriere = f"""
