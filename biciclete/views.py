@@ -19,7 +19,9 @@ from datetime import datetime
 
 # lab 2, ex 4 - task 1 
 # definire proprietati pentru tabel cu vizibilitate globala
+# constanta pagini - pentru L2, Ex 5 - task 1 
 
+PAGINI = ["/", "/info", "/log", "/istoric", "/despre"]
 
 PROPRIETATI = ["id", "ip_client", "url", "parametri", "data"]
 FORMAT_IMPLICIT = "%A, %-d %B %Y" 
@@ -295,15 +297,86 @@ def log(request):
 
         continut = f'<table border="1"><tr>{antet}</tr>{randuri}</table>'
     
+    # nr accesari pagini 
+    
+    numar = {}
+    for p in PAGINI:
+        numar[p] = 0
+    for a in accesari:
+        p = a.pagina()
+        if p in numar:
+            numar[p] = numar[p] + 1
+
+    min_pagina = min(numar, key=lambda p: numar[p])
+    max_pagina = max(numar, key=lambda p: numar[p])
+    sectiune_extreme = (f"<p>Pagina cea mai puțin accesată: {min_pagina} ({numar[min_pagina]})</p>"
+                        f"<p>Pagina cea mai accesată: {max_pagina} ({numar[max_pagina]})</p>")
+    
     pagina = ("""<!DOCTYPE html>
         <html lang="ro">
         <head><meta charset="utf-8"><title>Log accesări</title></head>
         <body>
             <h1>Log accesări</h1>
-            """ + continut + mesaj + sectiune_accesari + sectiune_parametri + """
+            """ + continut + sectiune_extreme + mesaj + sectiune_accesari + sectiune_parametri + """
         </body>
         </html>""")
     return HttpResponse(pagina)
 
 
 
+# lab 2, ex 5 - task 1 -- pagini istoric & despre 
+# istoric
+
+def istoric(request):
+    accesare = Accesare(request.ip_client, request.build_absolute_uri(), request.GET.dict())
+    accesari.append(accesare)
+    print(accesare)
+    return HttpResponse("<h1>Istoric</h1><p>Povestea magazinului BikeMania, de la primul atelier până azi.</p>")
+
+# despre 
+
+def despre(request):
+    accesare = Accesare(request.ip_client, request.build_absolute_uri(), request.GET.dict())
+    accesari.append(accesare)
+    print(accesare)
+    return HttpResponse("<h1>Despre noi</h1><p>Cine suntem și ce oferim clienților noștri.</p>")
+
+
+
+
+# lab 2, task 1, ex 5 - pagina detaliilor unei accesari (ruta cu re_path)
+def detalii_accesare(request, id_accesare):
+    # 1. accesarea curenta (si pagina asta se inregistreaza)
+    accesare = Accesare(request.ip_client, request.build_absolute_uri(), request.GET.dict())
+    accesari.append(accesare)
+    print(accesare)
+
+    # 2. cauta accesarea cu id-ul din adresa
+    cautata = None
+    for a in accesari:
+        if a.id == int(id_accesare):
+            cautata = a
+
+    # 3. daca nu exista, afiseaza un mesaj
+    if cautata is None:
+        return HttpResponse(f"<h1>Accesarea {id_accesare} nu există</h1>")
+
+    # 4. daca exista, afiseaza toate informatiile
+    return HttpResponse(f"""<!DOCTYPE html>
+        <html lang="ro">
+        <head>
+            <meta charset="utf-8">
+            <title>Accesarea {cautata.id}</title>
+        </head>
+        <body>
+            <h1>Accesarea {cautata.id}</h1>
+            <ul>
+                <li>id: {cautata.id}</li>
+                <li>ip_client: {cautata.ip_client}</li>
+                <li>url: {cautata.string_url()}</li>
+                <li>pagina: {cautata.pagina()}</li>
+                <li>data: {formateaza_data(cautata.data)}, ora {cautata.data.strftime('%H:%M:%S')}</li>
+                <li>parametri: {cautata.lista_parametri()}</li>
+            </ul>
+        </body>
+        </html>""")
