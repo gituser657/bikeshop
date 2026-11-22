@@ -165,3 +165,47 @@ def info(request):
     </body>
     </html>""")
     return HttpResponse(info_descriere)
+
+
+
+# lab 2, cerinta 1 din task 1 -- definire pagina /log
+# se va testa prin localhost:8000/biciclete/log?ultimele= --> insert nr 
+
+def log(request):
+    accesare = Accesare(request.ip_client, request.build_absolute_uri(), request.GET.dict())
+    accesari.append(accesare)
+    print(accesare)
+
+    selectate = accesari
+    mesaj = ""
+    ultimele = request.GET.get("ultimele")
+    
+    # verificare valoare accesari, inclusiv nr negativ trimis ca parametru 
+    
+    if ultimele is not None:
+        try:
+            n = int(ultimele)
+            if n < 1:
+                raise ValueError
+            if n > len(accesari):
+                mesaj = f"<p>Exista doar {len(accesari)} accesari fata de {n} accesari cerute</p>"
+            else:
+                selectate = accesari[-n:]
+        except ValueError:
+            selectate = []
+            mesaj = "<p>Parametrul ultimele trebuie sa fie un numar intreg pozitiv.</p>"
+    
+    # lista elemente 
+    elemente = "".join(
+        f"<li>{a.id} | {a.pagina()} | {a.string_url()} | {formateaza_data(a.data)}, ora {a.data.strftime('%H:%M:%S')}</li>"
+        for a in selectate
+    )
+    pagina = ("""<!DOCTYPE html>
+        <html lang="ro">
+        <head><meta charset="utf-8"><title>Log accesări</title></head>
+        <body>
+            <h1>Log accesări</h1>
+            <ul>""" + elemente + "</ul>" + mesaj + """
+        </body>
+        </html>""")
+    return HttpResponse(pagina)
