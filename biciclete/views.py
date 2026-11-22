@@ -225,27 +225,47 @@ def log(request):
                 if a.id == i:
                     selectate.append(a)
     
-        #parametrul accesari=nr
-        sectiune_nr = ""
-        if request.GET.get("accesari") == "nr":
-            sectiune_nr = f"<section><h2>Număr accesări</h2><p>{len(accesari)}</p></section>"
-    
+        # parametrul accesari=nr
+        # sectiune_nr = ""
+        # if request.GET.get("accesari") == "nr":
+        #     sectiune_nr = f"<section><h2>Număr accesări</h2><p>{len(accesari)}</p></section>"
+        
+    # lab 2, task 1 - ex 3 - implementare accesari detalii 
+    sectiune_accesari = ""
+    if request.GET.get("accesari") == "nr":
+        sectiune_accesari = f"<section><h2>Număr accesări</h2><p>{len(accesari)}</p></section>"
+    elif request.GET.get("accesari") == "detalii":
+        elemente_detalii = ""
+        for a in accesari:
+            elemente_detalii = elemente_detalii + f"<li>{formateaza_data(a.data)}, ora {a.data.strftime('%H:%M:%S')}</li>"
+        sectiune_accesari = "<section><h2>Detalii accesări</h2><ul>" + elemente_detalii + "</ul></section>"
     
     # final implementare lab 2, ex 2 - task 1 - parametrizare /log nu id-uri
     
-    # lista elemente 
+    # # lista elemente 
     elemente = "".join(
         f"<li>{a.id} | {a.pagina()} | {a.string_url()} | {formateaza_data(a.data)}, ora {a.data.strftime('%H:%M:%S')}</li>"
         for a in selectate
     )
+    
+    # sectiune parametri 
+    
+    nume_parametri = list(request.GET.keys())
+    elemente_parametri = ""
+    for nume in nume_parametri:
+        elemente_parametri = elemente_parametri + f"<li>{nume}</li>"
+        sectiune_parametri = (f"<section><h2>Parametri</h2><p>Număr parametri: {len(nume_parametri)}</p>"
+                    "<ul>" + elemente_parametri + "</ul></section>")
+    
     pagina = ("""<!DOCTYPE html>
         <html lang="ro">
         <head><meta charset="utf-8"><title>Log accesări</title></head>
         <body>
             <h1>Log accesări</h1>
-            <ul>""" + elemente + "</ul>" + mesaj + """
+            <ul>""" + elemente + "</ul>" + mesaj + sectiune_accesari + sectiune_parametri + """
         </body>
         </html>""")
     return HttpResponse(pagina)
+
 
 
