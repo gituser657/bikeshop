@@ -195,6 +195,44 @@ def log(request):
             selectate = []
             mesaj = "<p>Parametrul ultimele trebuie sa fie un numar intreg pozitiv.</p>"
     
+    # lab 2, ex2 - task 1  parametrii iduri si dubluri
+    valori_iduri = request.GET.getlist("iduri")       # ex: ["2,3", "5", "4,2,1"]
+    if valori_iduri:
+        dubluri = request.GET.get("dubluri", "false") == "true"
+
+        # toate id-urile intr-o singura lista de numere
+        lista_iduri = []
+        try:
+            for valoare in valori_iduri:
+                for bucata in valoare.split(","):
+                    lista_iduri.append(int(bucata))
+        except ValueError:
+            lista_iduri = []
+            mesaj = mesaj + "<p>Parametrul iduri trebuie sa contina doar numere separate prin virgula.</p>"
+
+        # eliminare dubluri (daca dubluri e false), pastrand ordinea
+        if not dubluri:
+            fara_dubluri = []
+            for i in lista_iduri:
+                if i not in fara_dubluri:
+                    fara_dubluri.append(i)
+            lista_iduri = fara_dubluri
+
+        # cauta accesarile cu id-urile cerute
+        selectate = []
+        for i in lista_iduri:
+            for a in accesari:
+                if a.id == i:
+                    selectate.append(a)
+    
+        #parametrul accesari=nr
+        sectiune_nr = ""
+        if request.GET.get("accesari") == "nr":
+            sectiune_nr = f"<section><h2>Număr accesări</h2><p>{len(accesari)}</p></section>"
+    
+    
+    # final implementare lab 2, ex 2 - task 1 - parametrizare /log nu id-uri
+    
     # lista elemente 
     elemente = "".join(
         f"<li>{a.id} | {a.pagina()} | {a.string_url()} | {formateaza_data(a.data)}, ora {a.data.strftime('%H:%M:%S')}</li>"
@@ -209,3 +247,5 @@ def log(request):
         </body>
         </html>""")
     return HttpResponse(pagina)
+
+
