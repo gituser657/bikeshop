@@ -38,11 +38,16 @@ def formateaza_data(d, format=FORMAT_IMPLICIT):
 
 # laboratorul 1, cerinta 4 metoda Accesare
 
-def get_ip(request):                       # functie din cerinta lab 
-    str_lista_ip = request.META.get('HTTP_X_FORWARDED_FOR')
-    if str_lista_ip:
-        return str_lista_ip.split(',')[-1].strip()
-    return request.META.get('REMOTE_ADDR')
+
+# block get_ip comentat in urma implementarii cerintei 8 din lab 1
+# middleware.py 
+
+
+# def get_ip(request):                       # functie din cerinta lab 1, ex 4
+#     str_lista_ip = request.META.get('HTTP_X_FORWARDED_FOR')
+#     if str_lista_ip:
+#         return str_lista_ip.split(',')[-1].strip()
+#     return request.META.get('REMOTE_ADDR')
 
 class Accesare: 
     count = 0    # contor pentru fiecare accesare
@@ -83,7 +88,7 @@ def index(request):
     
     #modificare in request.build_absolute_uri() - lab 1, ex 6
     
-    accesari.append(Accesare(get_ip(request), request.build_absolute_uri(), request.GET.dict()))
+    accesari.append(Accesare(request.ip_client, request.build_absolute_uri(), request.GET.dict()))
         
     # variabila pentru text lung 
     # title afiseaza numele in tab-ul din browser
@@ -102,10 +107,14 @@ def info(request):
     
     # accesare = Accesare(get_ip(request), request.get_full_path(), request.GET.dict())
     
-    accesare =Accesare(get_ip(request), request.build_absolute_uri(), request.GET.dict())
+    accesare =Accesare(request.ip_client, request.build_absolute_uri(), request.GET.dict())
     accesari.append(accesare)
     print(accesare.lista_parametri())
     print(accesare.string_url(), accesare.pagina())
+
+    
+    # verificare ca middleware-ul creat functioneaza - ex 8
+    print(accesare.ip_client)
     
     # eliminare functie datetime.now() & folosire metoda accesare.calculeaza_data()
     # acum = datetime.now()
@@ -114,10 +123,10 @@ def info(request):
     <html lang="ro">
     <head>
         <meta charset="utf-8">
-        <title>Informații despre server</title>
+        <title>Informatii despre server</title>
     </head>
     <body>
-        <h1>Informații despre server</h1>    
+        <h1>Informatii despre server</h1>    
     <section>
         <h2>Data și ora</h2>
         <p>{accesare.calculeaza_data()}, ora {accesare.calculeaza_data('%H:%M:%S')}</p>

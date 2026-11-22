@@ -48,6 +48,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'biciclete.middleware.GetIPmiddleware',
 ]
 
 ROOT_URLCONF = 'magazin_biciclete.urls'
